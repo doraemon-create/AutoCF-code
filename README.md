@@ -1,44 +1,66 @@
-# AutoCF-code
-# 论文 Automated Self-Supervised Learning for Recommendation
-此存储库包含以下论文中提出的<a href='https://github.com/akaxlh' target='_blank'>@akaxlh</a> 对 AutoCF 模型的 pyTorch 实现：
-><a href='https://akaxlh.github.io/' target='_blank'>Lianghao Xia</a>, <a href='https://sites.google.com/view/chaoh' target='_blank'>Chao Huang</a>, Chunzhen Huang, Kangyi Lin, Tao Yu and Ben Kao. <i>Automated Self-Supervised Learning for Recommendation</i>. <a href='https://arxiv.org/abs/2303.07797'>Paper in arXiv</a>. In WWW'23, Austin, US, April 30 - May 4, 2023.
+# 介绍
+* `路径规划`: 路径规划是指寻找从起点到终点最佳路线的过程，关键在于如何高效地避开障碍物并优化特定的路径指标（如距离、时间或能量消耗）。经典路径规划方法包括图搜索算法，如Dijkstra算法和A*算法；基于采样的方法，如RRT算法，RRT*算法；基于进化的方法，如遗传算法、模拟退火方法。
+* `路径跟踪`: 路径跟踪是指通过控制车辆、机器人或其他移动实体的转向和速度，使其能够精确地沿着预设或规划好的路径进行行驶或移动。主要目的是最小化移动实体与参考路径之间的横向距离和航向误差，确保移动实体能够稳定、准确地沿着预设路径移动。
 
-## 介绍
-大多数对比方法的成功在很大程度上依赖于手动生成有效的对比视图来进行基于启发式的数据增强。这不能推广到不同的数据集和下游推荐任务，并且对噪声扰动不具有鲁棒性。为了能够训练模型实现自动化的数据增强，AutoCF 设计了一种自动图增强方法，并且实现了一个掩码自动编码器。
+这个库提供了“路径规划”算法中JPS算法、RRT*算法和DWA算法的实现，以及“路径跟踪”算法中的PID算法、MPC算法的实现。
 
-## 实验环境
-实验在以下环境中运行:
-* python=3.10.4
-* torch=1.11.0
-* numpy=1.22.3
-* scipy=1.7.3
+#文件说明
+文件结构如下所示
 
-## 数据集
-数据集划分：训练集 : 验证集 : 测试集=70% : 5% : 25%
-| Dataset | \# Users | \# Items | \# Interactions | Interaction Density |
-|:-------:|:--------:|:--------:|:---------------:|:-------:|
-|Yelp   |$42,712$|$26,822$|$182,357$|$1.6\times 10^{-4}$|
-|Gowalla|$25,557$|$19,747$|$294,983$|$5.9\times 10^{-4}$|
-|Amazon |$76,469$|$83,761$|$966,680$|$1.5\times 10^{-4}$|
-
-## 代码使用方法
-请先解压缩数据集。此外，在AutoCF-main文件夹中创建 `History/` 和 `Models/` 目录。将工作目录切换到 `methods/AutoCF/` 。使用我们预先训练的在三个数据集上训练 AutoCF 的命令行如下所示。命令中未指定的超参数设置为默认值。
-
-* Yelp
 ```
-python Main.py --data yelp --reg 1e-4 --seed 500
-```
-* Gowalla
-```
-python Main.py --data gowalla --reg 1e-6
-```
-* Amazon
-```
-python Main.py --data amazon --reg 1e-5 --seed 500
+├─gif
+├─examples
+│ ├─simulation_global.mlx
+│ ├─simulation_local.mlx
+├─global_planner
+│ ├─graph_search
+│ | ├─a_star.m
+│ | ├─d_star.m
+│ | ├─dijkstra.m
+│ | ├─jps.m
+│ ├─sample_search
+│ | ├─rrt_star.m
+├─local_planner
+│ ├─dwa_plan.m
+│ ├─pid_plan.m
+│ ├─mpc_plan.m
+└─utils
 ```
 
-### 重要参数
-* `reg`: 权重衰减正则化的权重。我们从以下范围中调整这个超参数： `{1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8}`.
-* `ssl_reg`: 自监督学习的正则化权重。默认值为1，我们从以下范围中调整这个超参数： `{1, 1.5, 2, 2.5, 3}`.
-* `seedNum`: 此超参数表示子图掩码中的种子数。建议的值为 `{200, 500}`.
-* `topk`: 计算评价指标所使用的前k个推荐结果。默认值为20，可改完为40。
+路径规划和路径跟踪算法实现在文件夹“global_planner”和“local_planner”中。
+
+## 算法运行
+若要运行某个算法模拟，请打开`examples/simulation_global.mlx `或`examples/simulation_local.mlx '并选择算法和地图模式（静态和动态），例如
+
+```matlab
+clear all; clc;
+
+% load environment
+load("gridmap_20x20_scene1.mat");
+map_size = size(grid_map);
+G = 1;
+
+% simulation mode
+mode = "static";
+% mode = "dynamic";
+
+% start and goal
+start = [3, 2];
+goal = [18, 29];
+% goal = [12, 16];
+
+% planner
+% graph search
+% planner_name = "a_star";
+% planner_name = "dijkstra";
+% planner_name = "jps";
+% planner_name = "d_star";
+
+% sample search
+planner_name = "rrt_star";
+```
+
+
+
+## 算法结果
+算法结果保存在 `gif` 文件夹中。
